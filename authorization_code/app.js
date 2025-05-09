@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// 🔁 /swap endpoint
+// ✅ /swap endpoint
 app.post('/swap', function (req, res) {
   const code = req.body.code || req.query.code;
   const authOptions = {
@@ -25,8 +25,8 @@ app.post('/swap', function (req, res) {
     },
     headers: {
       Authorization:
-        'Basic ' +
-        Buffer.from(client_id + ':' + client_secret).toString('base64'),
+        'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded', // ✅ required!
     },
     json: true,
   };
@@ -35,12 +35,13 @@ app.post('/swap', function (req, res) {
     if (!error && response.statusCode === 200) {
       res.json(body);
     } else {
-      res.status(response.statusCode).json(body);
+      console.error('Token swap failed:', error, body);
+      res.status(response?.statusCode || 500).json(body);
     }
   });
 });
 
-// 🔁 /refresh endpoint
+// ✅ /refresh endpoint
 app.post('/refresh', function (req, res) {
   const refresh_token = req.body.refresh_token || req.query.refresh_token;
   const authOptions = {
@@ -51,8 +52,8 @@ app.post('/refresh', function (req, res) {
     },
     headers: {
       Authorization:
-        'Basic ' +
-        Buffer.from(client_id + ':' + client_secret).toString('base64'),
+        'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64'),
+      'Content-Type': 'application/x-www-form-urlencoded', // ✅ required!
     },
     json: true,
   };
@@ -61,16 +62,19 @@ app.post('/refresh', function (req, res) {
     if (!error && response.statusCode === 200) {
       res.json(body);
     } else {
-      res.status(response.statusCode).json(body);
+      console.error('Token refresh failed:', error, body);
+      res.status(response?.statusCode || 500).json(body);
     }
   });
 });
 
-const port = process.env.PORT || 3000;
-
-// Health check for /swap
-app.get('/authorization_code/swap', (req, res) => {
+// ✅ Health check at correct route
+app.get('/swap', (req, res) => {
   res.status(200).send('Swap endpoint is live');
+});
+
+app.get('/refresh', (req, res) => {
+  res.status(200).send('Refresh endpoint is live');
 });
 
 app.get('/testSpotifyConnection', (req, res) => {
@@ -82,11 +86,7 @@ app.get('/testSpotifyConnection', (req, res) => {
   });
 });
 
-// Health check for /refresh
-app.get('/authorization_code/refresh', (req, res) => {
-  res.status(200).send('Refresh endpoint is live');
-});
-
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
