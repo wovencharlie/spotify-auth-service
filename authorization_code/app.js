@@ -67,6 +67,17 @@ app.post('/refresh', function (req, res) {
 });
 
 const port = process.env.PORT || 3000;
+
+// Health check for /swap
+app.get('/swap', (req, res) => {
+  res.status(200).send('Swap endpoint is live');
+});
+
+// Health check for /refresh
+app.get('/refresh', (req, res) => {
+  res.status(200).send('Refresh endpoint is live');
+});
+
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
