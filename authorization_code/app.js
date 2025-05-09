@@ -73,6 +73,15 @@ app.get('/authorization_code/swap', (req, res) => {
   res.status(200).send('Swap endpoint is live');
 });
 
+app.get('/testSpotifyConnection', (req, res) => {
+  request('https://accounts.spotify.com/api/token', (error, response) => {
+    if (error) {
+      return res.status(500).send(`Failed: ${error.message}`);
+    }
+    res.status(200).send(`Response code: ${response.statusCode}`);
+  });
+});
+
 // Health check for /refresh
 app.get('/authorization_code/refresh', (req, res) => {
   res.status(200).send('Refresh endpoint is live');
